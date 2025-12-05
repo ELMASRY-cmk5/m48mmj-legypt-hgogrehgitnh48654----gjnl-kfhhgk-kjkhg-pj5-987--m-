@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>أخبار اليوم</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#1a0f08 0%,#0d0605 100%);color:#f5e6d3;min-height:100vh}
+    .container{max-width:1100px;margin:40px auto;padding:20px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:16px}
+    a.brand{color:#d4a017;text-decoration:none;font-weight:700;font-size:20px}
+    nav a{color:#f5e6d3;text-decoration:none;padding:8px 12px;border-radius:6px}
+    nav a:hover{background:rgba(212,160,23,0.08);color:#d4a017}
+    h1{font-size:40px;color:#d4a017;margin:24px 0;text-align:center}
+    .news-area{background:rgba(44,24,16,0.6);padding:30px;border:2px solid #d4a017;border-radius:10px;text-align:center}
+    .pharaonic{display:inline-block;font-weight:700;font-size:20px;color:#d4a017;padding:14px 20px;border:2px solid #d4a017;border-radius:8px;background:linear-gradient(135deg,rgba(212,160,23,0.03),rgba(212,160,23,0.01))}
+    .actions{margin-top:18px;text-align:center}
+    .btn{display:inline-block;padding:10px 16px;border-radius:8px;text-decoration:none;background:transparent;border:2px solid #d4a017;color:#d4a017}
+    .btn:hover{background:#d4a017;color:#1a0f08}
+    footer{margin:40px 0 20px;text-align:center;color:#b89968;font-size:14px}
+    @media (max-width:600px){h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+      <header>
+      <a class="brand" href="index.html">مصر الفرعونية</a>
+      <nav>
+        <a href="index.html">الصفحة الرئيسية</a>
+        <a href="news.html">أخبار اليوم</a>
+        <button id="supervisorTopBtn" class="btn" style="padding:8px 12px;font-size:14px">المشرف</button>
+        <a href="#contact">اتصل بنا</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>أخبار اليوم</h1>
+      <div class="news-area" id="newsArea" aria-live="polite">
+        <!-- ستُعرض هنا بطاقات الأخبار للجمهور -->
+        <div id="publicList"></div>
+        <div style="margin-top:18px;text-align:center">
+          <a class="btn" href="index.html">العودة للرئيسية</a>
+        </div>
+        
+      </div>
+
+      <!-- واجهة الإدارة (مخفية للمستخدمين) -->
+      <section id="adminPanel" style="margin-top:24px;display:none;background:rgba(0,0,0,0.25);padding:18px;border-radius:8px;border:1px dashed rgba(212,160,23,0.12)">
+        <h2 style="text-align:center;color:#d4a017;margin-bottom:12px">لوحة إدارة الأخبار (خاصة بك)</h2>
+        <form id="newsForm" style="display:grid;grid-template-columns:1fr;gap:10px;max-width:700px;margin:0 auto">
+          <label>عنوان الخبر
+            <input id="newsTitle" type="text" placeholder="اكتب عنوان الخبر" style="width:100%;padding:10px;border-radius:6px;border:1px solid rgba(212,160,23,0.12);background:transparent;color:#f5e6d3">
+          </label>
+          <label>رابط الصورة (URL)
+            <input id="newsImage" type="url" placeholder="https://example.com/image.jpg" style="width:100%;padding:10px;border-radius:6px;border:1px solid rgba(212,160,23,0.12);background:transparent;color:#f5e6d3">
+          </label>
+          <label>محتوى الخبر (يمكن وضع نص، HTML، روابط صور وفيديو)
+            <textarea id="newsContent" placeholder="اكتب تفاصيل الخبر هنا (يمكن لصق كود HTML أو روابط فيديو)" rows="6" style="width:100%;padding:10px;border-radius:6px;border:1px solid rgba(212,160,23,0.12);background:transparent;color:#f5e6d3"></textarea>
+          </label>
+          <label>اسم ملف تفاصيل الخبر (اختياري - لن يُستخدم إذا أدخلت محتوى داخلي)
+            <input id="newsPage" type="text" placeholder="news-1.html" style="width:100%;padding:10px;border-radius:6px;border:1px solid rgba(212,160,23,0.12);background:transparent;color:#f5e6d3">
+          </label>
+          <label>الفئة
+            <select id="newsCategory" style="width:100%;padding:10px;border-radius:6px;border:1px solid rgba(212,160,23,0.12);background:transparent;color:#f5e6d3">
+              <option value="عام">عام</option>
+              <option value="اقتصاد">اقتصاد</option>
+              <option value="سياسة">سياسة</option>
+              <option value="رياضة">رياضة</option>
+              <option value="تكنولوجيا">تكنولوجيا</option>
+              <option value="ثقافة">ثقافة</option>
+              <option value="صحة">صحة</option>
+              <option value="محلي">محلي</option>
+              <option value="عالم">عالم</option>
+            </select>
+          </label>
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            <button id="addNewsBtn" class="btn" type="button">إضافة الخبر</button>
+            <button id="clearNewsBtn" class="btn" type="button">مسح كل الأخبار</button>
+          </div>
+          <div style="text-align:center;margin-top:12px">
+            <button id="logoutBtn" class="btn" type="button">إنهاء الجلسة</button>
+          </div>
+        </form>
+      </section>
+
+    </main>
+
+    <footer>
+      &copy; جميع الحقوق محفوظة — مصر الفرعونية
+    </footer>
+  </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+    import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+
+    (function(){
+      function isAdminMode(){
+        try{ const param = new URLSearchParams(window.location.search).get('admin') === '1'; return param || localStorage.getItem('mf_admin_authenticated') === '1'; }catch(e){ return localStorage.getItem('mf_admin_authenticated') === '1'; }
+      }
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAoCN5aHni1iHXao8CzU8slajjfT1KQ1nU",
+        authDomain: "news-app-d1919.firebaseapp.com",
+        projectId: "news-app-d1919",
+        storageBucket: "news-app-d1919.firebasestorage.app",
+        messagingSenderId: "331877585684",
+        appId: "1:331877585684:web:3b77ee0f4ebfced14d6801"
+      };
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      const publicList = document.getElementById('publicList');
+      const adminPanel = document.getElementById('adminPanel');
+      const titleInput = document.getElementById('newsTitle');
+      const imageInput = document.getElementById('newsImage');
+      const pageInput = document.getElementById('newsPage');
+      const contentInput = document.getElementById('newsContent');
+      const categoryInput = document.getElementById('newsCategory');
+      const addBtn = document.getElementById('addNewsBtn');
+      const clearBtn = document.getElementById('clearNewsBtn');
+
+      function escapeHtml(s){ return (s||'').replace(/[&<>\\\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+      const q = query(collection(db, 'news'), orderBy('createdAt', 'desc'));
+
+      function renderItems(items){
+        publicList.innerHTML = '';
+        if(!items || items.length === 0){ const p = document.createElement('div'); p.className = 'pharaonic'; p.textContent = 'لا توجد اخبار الي الان'; publicList.appendChild(p); return; }
+        const grid = document.createElement('div'); grid.style.display = 'grid'; grid.style.gridTemplateColumns = 'repeat(auto-fit,minmax(220px,1fr))'; grid.style.gap = '16px';
+        items.forEach(it => {
+          const card = document.createElement('a'); card.href = 'news-detail.html?id=' + encodeURIComponent(it.id); card.className = 'news-card'; card.style.display = 'block'; card.style.textDecoration = 'none'; card.style.color = '#f5e6d3'; card.style.border = '1px solid rgba(212,160,23,0.08)'; card.style.borderRadius = '8px'; card.style.overflow = 'hidden'; card.style.background = 'rgba(44,24,16,0.6)'; card.style.padding = '0';
+          const imgWrap = document.createElement('div'); imgWrap.style.height = '140px'; imgWrap.style.overflow = 'hidden'; imgWrap.style.background = '#24120b'; const img = document.createElement('img'); img.src = it.image || ''; img.alt = it.title || ''; img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; imgWrap.appendChild(img);
+          const caption = document.createElement('div'); caption.style.padding = '12px'; caption.style.textAlign = 'right'; const cat = escapeHtml(it.category || 'عام'); caption.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:#d4a017">${escapeHtml(it.title || '')}</strong><span style="background:rgba(212,160,23,0.06);color:#d4a017;padding:4px 8px;border-radius:6px;font-size:13px">${cat}</span></div>`;
+          card.appendChild(imgWrap); card.appendChild(caption); grid.appendChild(card);
+        });
+        publicList.appendChild(grid);
+      }
+
+      // helper: one-shot fetch with retries using getDocs
+      async function fetchOnceWithRetries(attempts){
+        let lastErr = null;
+        for(let i=0;i<attempts;i++){
+          try{
+            const snap = await getDocs(q);
+            const items = [];
+            snap.forEach(d=>items.push(Object.assign({ id: d.id }, d.data())));
+            return items;
+          }catch(e){ lastErr = e; console.warn('fetch attempt failed', i+1, e); await new Promise(r=>setTimeout(r, 500*(i+1))); }
+        }
+        throw lastErr;
+      }
+
+      onSnapshot(q, snapshot => {
+        const items = [];
+        snapshot.forEach(d => { items.push(Object.assign({ id: d.id }, d.data())); });
+        renderItems(items);
+        // also update local cache for offline/public fallback
+        try{
+          const cache = items.map(i=>({ id: i.id, title: i.title||'', image: i.image||'', content: i.content||'', page: i.page||'', category: i.category||'', createdAt: i.createdAt ? (i.createdAt.seconds? i.createdAt.seconds*1000 : i.createdAt) : Date.now() }));
+          localStorage.setItem('mf_news_cache', JSON.stringify(cache.slice(0,200)));
+        }catch(e){ console.warn('cache update failed', e); }
+      }, async err => {
+        console.error('firestore snapshot error', err);
+        // First recover: try getDocs (one-time) with retries
+        try{
+          const items = await fetchOnceWithRetries(3);
+          if(items && items.length){ renderItems(items); try{ const cache = items.map(i=>({ id: i.id, title: i.title||'', image: i.image||'', content: i.content||'', page: i.page||'', category: i.category||'', createdAt: i.createdAt ? (i.createdAt.seconds? i.createdAt.seconds*1000 : i.createdAt) : Date.now() })); localStorage.setItem('mf_news_cache', JSON.stringify(cache.slice(0,200))); }catch(e){console.warn('cache update failed', e);} return; }
+        }catch(e){ console.warn('getDocs fallback failed', e); }
+        // Next fallback: try to render from local cache
+        try{
+          const raw = localStorage.getItem('mf_news_cache');
+          if(raw){ const cached = JSON.parse(raw||'[]'); if(cached && cached.length){ renderItems(cached); // attach a refresh button so user can retry
+              const note = document.createElement('div'); note.style.marginTop='12px'; note.style.textAlign='center'; note.innerHTML = '<div style="color:#b89968;margin-bottom:6px">عرض من التخزين المؤقت — قد تكون نسخة قديمة. <button id="refreshNewsBtn" class="btn">تحديث الأخبار</button></div>';
+              publicList.appendChild(note);
+              const refresh = document.getElementById('refreshNewsBtn'); if(refresh) refresh.addEventListener('click', async ()=>{ refresh.textContent='جاري التحميل...'; try{ const fresh = await fetchOnceWithRetries(3); if(fresh && fresh.length){ renderItems(fresh); localStorage.setItem('mf_news_cache', JSON.stringify(fresh.map(i=>({ id:i.id,title:i.title||'',image:i.image||'',content:i.content||'',page:i.page||'',category:i.category||'',createdAt:i.createdAt? (i.createdAt.seconds? i.createdAt.seconds*1000 : i.createdAt):Date.now()})).slice(0,200))); } else { alert('لا توجد تحديثات جديدة'); } }catch(e){ alert('تعذر تحميل الأخبار الآن. حاول مرة أخرى لاحقاً.'); console.warn(e); } finally{ refresh.textContent='تحديث الأخبار'; } });
+              return; } }
+        }catch(e){ console.warn('failed to load cache', e); }
+        // final fallback message with retry
+        publicList.innerHTML = '';
+        const p = document.createElement('div'); p.className = 'pharaonic'; p.textContent = 'تعذر تحميل الأخبار الآن. حاول مرة أخرى لاحقاً.'; publicList.appendChild(p);
+        const retry = document.createElement('div'); retry.style.marginTop='12px'; retry.style.textAlign='center'; retry.innerHTML = '<button id="retryNewsBtn" class="btn">حاول مرة أخرى</button>';
+        publicList.appendChild(retry);
+        document.getElementById('retryNewsBtn').addEventListener('click', async ()=>{
+          try{ const fresh = await fetchOnceWithRetries(3); if(fresh && fresh.length){ renderItems(fresh); localStorage.setItem('mf_news_cache', JSON.stringify(fresh.map(i=>({ id:i.id,title:i.title||'',image:i.image||'',content:i.content||'',page:i.page||'',category:i.category||'',createdAt:i.createdAt? (i.createdAt.seconds? i.createdAt.seconds*1000 : i.createdAt):Date.now()})).slice(0,200))); } else { alert('لا توجد أخبار لعرضها الآن'); } }catch(e){ alert('تعذر التحميل. تحقق من اتصال الشبكة أو سياسات Firestore.'); console.warn(e); }
+        });
+      });
+
+      if(isAdminMode()){ adminPanel.style.display = 'block'; }
+
+      onAuthStateChanged(auth, user => { if(user){ localStorage.setItem('mf_admin_authenticated','1'); adminPanel.style.display = 'block'; }else{ if(localStorage.getItem('mf_admin_authenticated') !== '1'){ adminPanel.style.display = 'none'; } } });
+
+      addBtn.addEventListener('click', async function(){
+        const title = titleInput.value.trim();
+        const image = imageInput.value.trim();
+        const page = pageInput.value.trim();
+        const content = contentInput ? contentInput.value.trim() : '';
+        const category = categoryInput ? (categoryInput.value || 'عام') : 'عام';
+        if(!title){ alert('اكتب عنوان الخبر'); return; }
+        try{
+          const payload = { title, image: image || '', page: page || '', content: content || '', category, createdAt: serverTimestamp(), authorUid: auth.currentUser ? auth.currentUser.uid : null, authorEmail: auth.currentUser ? auth.currentUser.email : null };
+          const ref = await addDoc(collection(db, 'news'), payload);
+          // update local cache immediately so public users can see the new item even if Firestore read is restricted
+          try{
+            const raw = localStorage.getItem('mf_news_cache');
+            const cache = raw ? JSON.parse(raw) : [];
+            const item = { id: ref.id, title: payload.title, image: payload.image, content: payload.content, page: payload.page, category: payload.category, createdAt: Date.now() };
+            cache.unshift(item);
+            localStorage.setItem('mf_news_cache', JSON.stringify(cache.slice(0,200)));
+          }catch(e){ console.warn('failed to update local cache', e); }
+          titleInput.value = ''; imageInput.value = ''; pageInput.value = ''; contentInput.value = '';
+          alert('تمت إضافة الخبر في Firebase.');
+        }catch(e){ console.error(e); alert('فشل إضافة الخبر: ' + (e.message||e)); }
+      });
+
+      clearBtn.addEventListener('click', async function(){ if(!confirm('هل أنت متأكد من مسح كل الأخبار من Firebase؟ هذه العملية لا يمكن التراجع عنها.')) return; try{ const snap = await getDocs(collection(db, 'news')); const deletions = []; snap.forEach(d => { deletions.push(deleteDoc(doc(db, 'news', d.id))); }); await Promise.all(deletions); alert('تم حذف جميع الأخبار.'); }catch(e){ console.error(e); alert('فشل المسح: ' + (e.message||e)); } });
+
+      const supervisorTopBtn = document.getElementById('supervisorTopBtn'); if(supervisorTopBtn){ supervisorTopBtn.addEventListener('click', function(){ window.location.href = 'admin-login.html'; }); }
+
+      const logoutBtn = document.getElementById('logoutBtn'); if(logoutBtn){ logoutBtn.addEventListener('click', async function(){ try{ await signOut(auth); }catch(e){ console.warn('signOut failed', e); } localStorage.removeItem('mf_admin_authenticated'); adminPanel.style.display = 'none'; alert('تم إنهاء جلسة المشرف'); }); }
+    })();
+  </script>
+</body>
+</html>

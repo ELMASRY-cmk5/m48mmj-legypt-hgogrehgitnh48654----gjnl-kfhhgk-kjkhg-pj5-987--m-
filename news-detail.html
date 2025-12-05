@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>تفاصيل الخبر</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#1a0f08,#0d0605);color:#f5e6d3;padding:20px}
+    main{max-width:900px;margin:20px auto;background:rgba(44,24,16,0.6);padding:24px;border-radius:8px;border:2px solid #d4a017}
+    h1{color:#d4a017;margin-bottom:12px}
+    .content{color:#f5e6d3;line-height:1.8}
+    a.back{display:inline-block;margin-bottom:12px;color:#d4a017;text-decoration:none}
+    img{max-width:100%;height:auto;border-radius:6px}
+    iframe{max-width:100%}
+  </style>
+</head>
+<body>
+  <main id="main">
+    <a class="back" href="news.html">&larr; العودة لأخبار اليوم</a>
+    <h1 id="title">تفاصيل الخبر</h1>
+    <div id="content" class="content">جاري التحميل...</div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+
+    // Firebase config (matches the one used in news.html)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoCN5aHni1iHXao8CzU8slajjfT1KQ1nU",
+      authDomain: "news-app-d1919.firebaseapp.com",
+      projectId: "news-app-d1919",
+      storageBucket: "news-app-d1919.firebasestorage.app",
+      messagingSenderId: "331877585684",
+      appId: "1:331877585684:web:3b77ee0f4ebfced14d6801"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function getParam(name){ return new URLSearchParams(window.location.search).get(name); }
+    const id = getParam('id');
+    const titleEl = document.getElementById('title');
+    const contentEl = document.getElementById('content');
+
+    async function loadArticle(){
+      if(!id){ titleEl.textContent = 'الخبر غير موجود'; contentEl.textContent = 'لا يوجد معرف.'; return; }
+      try{
+        const d = await getDoc(doc(db, 'news', id));
+        if(!d.exists()){
+          // try local cache fallback
+          try{
+            const raw = localStorage.getItem('mf_news_cache');
+            if(raw){
+              const cached = JSON.parse(raw||'[]');
+              const found = cached.find(c=>c.id === id);
+              if(found){
+                titleEl.textContent = found.title || 'تفاصيل الخبر';
+                let html = '';
+                if(found.image) html += `<img src="${found.image}" alt="${(found.title||'')}">`;
+                if(found.category) html = `<p style="color:#b89968;font-size:14px;margin-bottom:8px">الفئة: ${found.category}</p>` + html;
+                if(found.content) html += `<div style="margin-top:12px">${found.content}</div>`;
+                contentEl.innerHTML = html || 'لا توجد تفاصيل إضافية.';
+                return;
+              }
+            }
+          }catch(e){ console.warn('cache fallback failed', e); }
+          titleEl.textContent = 'الخبر غير موجود';
+          contentEl.textContent = 'لا يوجد محتوى لهذه المعرف.';
+          return;
+        }
+        const item = d.data();
+        titleEl.textContent = item.title || 'تفاصيل الخبر';
+        if(item.content && item.content.length){
+          contentEl.innerHTML = item.content;
+          return;
+        }
+        let html = '';
+        if(item.image){ html += `<img src="${item.image}" alt="${(item.title||'')}">`; }
+        if(item.page){ html += `<p style="margin-top:12px">تفاصيل إضافية: <a href="${item.page}" style="color:#d4a017" target="_blank" rel="noopener">فتح صفحة التفاصيل</a></p>`; }
+        if(item.category){ html = `<p style="color:#b89968;font-size:14px;margin-bottom:8px">الفئة: ${item.category}</p>` + html; }
+        if(!html) html = 'لا توجد تفاصيل إضافية.';
+        contentEl.innerHTML = html;
+      }catch(e){
+        console.error(e);
+        // attempt to load from local cache when Firestore read fails
+        try{
+          const raw = localStorage.getItem('mf_news_cache');
+          if(raw){
+            const cached = JSON.parse(raw||'[]');
+            const found = cached.find(c=>c.id === id);
+            if(found){
+              titleEl.textContent = found.title || 'تفاصيل الخبر';
+              let html = '';
+              if(found.image) html += `<img src="${found.image}" alt="${(found.title||'')}">`;
+              if(found.category) html = `<p style="color:#b89968;font-size:14px;margin-bottom:8px">الفئة: ${found.category}</p>` + html;
+              if(found.content) html += `<div style="margin-top:12px">${found.content}</div>`;
+              contentEl.innerHTML = html || 'لا توجد تفاصيل إضافية.';
+              return;
+            }
+          }
+        }catch(e2){ console.warn('cache fallback failed', e2); }
+        titleEl.textContent = 'خطأ في التحميل';
+        contentEl.textContent = e.message || String(e);
+      }
+    }
+
+    loadArticle();
+  </script>
+</body>
+</html>
